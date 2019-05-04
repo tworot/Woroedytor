@@ -307,40 +307,36 @@ static void enteredEscape(JLabel status){
 }
 
 static void enteredBackspace(JLabel[] labels){
-            edytowany = true;
-        	if(kolumna+kolOff2==0){
-        		if (linia==0 && linOff==0);
-        		else {
-        			if(linia==0 && linOff>=linSkok){
-        				linOff-=linSkok;
-        				linia=linSkok-1;}
-        			else linia-=1;
-        			kolumna=wpisane.get(linia+linOff).length();
-        			wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
-        			wpisane.remove(linia+linOff+1);
-        			refreshRows(labels);
-        			}}
-        	else if(kolumna+kolOff2==wpisane.get(linia+linOff).length()) {
-        		wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,wpisane.get(linia+linOff).length()-1));
-        		kolumna-=1;
-        		}	
-        	else {
-        	wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2-1)+wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));
-        	kolumna-=1;}}
+    edytowany = true;
+  	if(kolumna+kolOff2==0){
+	if (linia==0 && linOff==0);
+	else {
+		if(linia==0 && linOff>=linSkok){
+    		linOff-=linSkok;
+        	linia=linSkok-1;}
+        else linia-=1;
+        kolumna=wpisane.get(linia+linOff).length();
+        wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
+        wpisane.remove(linia+linOff+1);
+        refreshRows(labels);}}
+    else if(kolumna+kolOff2==wpisane.get(linia+linOff).length()) {
+        wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,wpisane.get(linia+linOff).length()-1));
+        kolumna-=1;}	
+    else {
+        wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2-1)+wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));
+        kolumna-=1;}}
 
 
 static void enteredDelete(JLabel[] labels){
-            edytowany = true;
-        	if(kolumna+kolOff2==wpisane.get(linia+linOff).length()){
-        		if (linia+linOff==wpisane.size() || wpisane.size()==1);
-        		else {
-        			wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
-        			wpisane.remove(linia+linOff+1);
-        			refreshRows(labels);
-        			}}
-
-        	else {
-        	wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+wpisane.get(linia+linOff).substring(kolumna+kolOff2+1,wpisane.get(linia+linOff).length()));}}
+	edytowany = true;
+	if(kolumna+kolOff2==wpisane.get(linia+linOff).length()){
+		if (linia+linOff==wpisane.size() || wpisane.size()==1);
+		else {
+			wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
+			wpisane.remove(linia+linOff+1);
+			refreshRows(labels);}}
+	else {
+	wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+wpisane.get(linia+linOff).substring(kolumna+kolOff2+1,wpisane.get(linia+linOff).length()));}}
 
 static void enteredEnter(JLabel[] labels){
     edytowany = true;
