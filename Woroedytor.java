@@ -171,7 +171,6 @@ public static void main(String[] args) {
 		}};
 
 	cursor.setLayout(null);
-	cursor.setOpaque(true);
 	cursor.add(cursorLetter);
 	cursor.setSize(kolMax*kurSzer+25,linMax*kurWys+55);
 	cursor.setOpaque(false);
