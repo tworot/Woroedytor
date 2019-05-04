@@ -37,11 +37,18 @@ public class Woroedytor {
 
 //kolor tla	
 	private static final Color backgroundColor = new Color(32,32,32);
-    
+ 
     private static final int kurSzer = 12;
     private static final int kurWys = 23;
 	private static final int fontRozmiar = 20;
 
+//czcionka tekstu
+	private static final Font textFont = new Font("Courier New", Font.PLAIN, fontRozmiar); 
+
+//czcionka statusu
+	private static final Font statusFont = new Font("Courier New", Font.PLAIN, 12);
+	
+//czcionka fontu - stała stylu, może być PLAIN, BOLD, ITALIC lub BOLD+ITALIC - rozmiar fontu
     //KONIEC USTAWIEN UZYTKOWNIKA
 
 
@@ -133,14 +140,14 @@ public static void main(String[] args) {
 	
 	for(int i=0;i<labels.length;i++){
 		labels[i] = new JLabel(" ");
-		labels[i].setFont(new Font("Courier New", Font.PLAIN, fontRozmiar));
+		labels[i].setFont(textFont);
     	labels[i].setForeground(textColor);
     	labels[i].setPreferredSize(new Dimension(kolMax*kurSzer,kurWys));
     	labels[i].setMinimumSize(new Dimension(1,kurWys));
 		//labels[i].setLocation(0,kurWys*i);
     	textPane.add(labels[i]);}
 	JLabel status = new JLabel("Ln 1, Kol 1");
-	status.setFont(new Font("Courier New", Font.PLAIN, 12));
+	status.setFont(statusFont);
 	status.setForeground(textColor);
 	textPane.add(status);
 
@@ -150,7 +157,7 @@ public static void main(String[] args) {
 
 
 	JLabel cursorLetter = new JLabel(" ");
-	cursorLetter.setFont(new Font("Courier New", Font.PLAIN, fontRozmiar));
+	cursorLetter.setFont(textFont);
 	cursorLetter.setForeground(Color.BLACK);
 	cursorLetter.setLocation(0,0);
 	cursorLetter.setSize(cursorLetter.getPreferredSize());
