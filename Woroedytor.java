@@ -33,7 +33,10 @@ public class Woroedytor {
     
     private static final int kurSzer = 12;
     private static final int kurWys = 23;
-    private static final int fontRozmiar = 20;
+	private static final int fontRozmiar = 20;
+
+//ile zostaje kolumn po przejściu do zawiniętego wiersza?
+	private static final int kolLeft=6; //def: 6;
 
     //KONIEC USTAWIEN UZYTKOWNIKA
 
@@ -47,6 +50,7 @@ public class Woroedytor {
     static final Kursor kursor = new Kursor(0,0,kurSzer,kurWys,kurColor,kurColor);
     private static boolean menuWyjscia = false;
     private static boolean edytowany = false;
+
 
 	
 	static String openFile(String nazwaPliku, String[] args) {
@@ -189,14 +193,14 @@ public static void main(String[] args) {
 		
 static void naprawKolumny(){
 	while(kolumna>kolMax-2){
-		kolumna-=(kolMax-8);
-		kolOff+=(kolMax-8);
-		if(kolOff==kolMax-8) kolOff++;
+		kolumna-=(kolMax-kolLeft-2);
+		kolOff+=(kolMax-kolLeft-2);
+		if(kolOff==kolMax-kolLeft-2) kolOff++;
 		kolOff2=kolOff-1;	}
 		
-	while(kolumna<7 && kolOff>0){
-		kolumna+=(kolMax-8);
-		kolOff-=(kolMax-8);
+	while(kolumna<=kolLeft && kolOff>0){
+		kolumna+=(kolMax-kolLeft-2);
+		kolOff-=(kolMax-kolLeft-2);
 		if(kolOff==1) kolOff--;
 		if(kolOff>0) kolOff2=kolOff-1;
 		else kolOff2=0;	}}
