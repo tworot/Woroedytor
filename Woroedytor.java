@@ -10,13 +10,16 @@ public class Woroedytor {
     //USTAWIENIA UZYTKOWNIKA
 
 //Liczba linii w oknie
-  private static final int linMax=30; //>=1
+    private static final int linMax=30; //>=1
 
 //Ekran skacze o tyle linii w g�r�/d� przy wyj�ciu kursora za okno
-  private static final int linSkok=15; //>=1, <linMax
+    private static final int linSkok=15; //>=1, <linMax
 
 //Liczba kolumn w oknie, dalej si� zawija
 	private static final int kolMax=80; //>=10
+
+//ile zostaje znaków z lewej przy przejściu do zawiniętego wiersza?
+    private static final int kolLeft=6; //def: 6, polecam co najmniej 1;
 	
 //domyślna nazwa pliku (bez rozszerzenia!)	
 	private static final String domNazwaPliku = new String("newfile"); //niepuste
@@ -26,17 +29,19 @@ public class Woroedytor {
 
 //czy pozostawić komunikaty od odpluskwiania?
 	private static final boolean czyDebug = false; //true/false 
-	
+
+//kolor tekstu	
 	private static final Color textColor = new Color(221,221,221);
+
+//kolor kursora	
 	private static final Color kurColor = new Color(0,255,0);
+
+//kolor tla	
 	private static final Color backgroundColor = new Color(32,32,32);
     
     private static final int kurSzer = 12;
     private static final int kurWys = 23;
 	private static final int fontRozmiar = 20;
-
-//ile zostaje kolumn po przejściu do zawiniętego wiersza?
-	private static final int kolLeft=6; //def: 6;
 
     //KONIEC USTAWIEN UZYTKOWNIKA
 
