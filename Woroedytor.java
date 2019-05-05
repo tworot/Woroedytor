@@ -204,15 +204,18 @@ public static void main(String[] args) {
         if (keyCode == KeyEvent.VK_UP) wGore(labels);        	
         if (keyCode == KeyEvent.VK_LEFT) wLewo(labels);        	
 		if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels);
-		if (keyCode == 36) {kolumna = 0; kolOff = 0; kolOff2 = 0;}
-		if (keyCode == 35) {kolumna = wpisane.get(linia+linOff).length(); kolOff = 0; kolOff2 = 0;}
-		
-	 }       	
+		if (keyCode == 36) enteredHome();
+		if (keyCode == 35) enteredEnd();
+		if (keyCode == 33) {int i; System.out.println(linia+linMax); for (i=(linia+linMax);i>0;i--) wGore(labels); System.out.println(i); kolumna = 0; kolOff = 0; kolOff2 = 0;}
+
+		}
+		   
+
         
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
 		else if (c == 8) enteredBackspace(labels); //Backspace / Ctrl+H
-        else if (c != 0xffff && c>31) { 
+        else if (c>31) { 
             wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+ c +wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));   
             kolumna++;
             edytowany = true; }
@@ -249,57 +252,58 @@ static void naprawKolumny(){
 		if(kolOff>0) kolOff2=kolOff-1;
 		else kolOff2=0;	}}
 
-static void wPrawo(JLabel[] labels){
-    if (kolumna+kolOff2>=wpisane.get(linia+linOff).length()){
-        if (linia+linOff<wpisane.size()-1){
-            if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
-            if (linia<linMax-1) linia+=1;
-            else {
-                linia=linMax-linSkok;
-                linOff+=linSkok;
-                refreshRows(labels);}
-            kolumna=0;
-            kolOff=0;
-            kolOff2=0;}}
-    else kolumna+=1;}	
+	
 
 static void wLewo(JLabel[] labels){
-    if (kolumna==0){
-        if (linia+linOff>0) {
-            if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
-            if(linia>0) linia-=1;
-            else {
-                linia=linSkok-1;
-                linOff-=linSkok;
-                refreshRows(labels);}
-            kolumna=wpisane.get(linia+linOff).length();}}
+    if (kolumna==0) {
+		if (wGoreStub(labels)) enteredEnd();}
     else kolumna-=1;}
 
 static void wGore(JLabel[] labels){
-    if (linia+linOff>0) {
-        if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
+    if (wGoreStub(labels)) endIfNecessary();}
+
+static boolean wGoreStub(JLabel[] labels){
+	boolean notFirstLine = (linia+linOff>0);
+	if (notFirstLine) {
+		if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
         if(linia>0) linia-=1;
         else {
             linia=linSkok-1;
-            linOff-=linSkok;
-            refreshRows(labels);}
-    	if (kolumna+kolOff2>wpisane.get(linia+linOff).length()) {
-			kolumna=wpisane.get(linia+linOff).length();
-			kolOff=0;
-			kolOff2=0;}}}
+            linOff-=Math.min(linSkok,linOff);
+			refreshRows(labels);}}
+	return notFirstLine;
+}
 
-static void wDol(JLabel[] labels){ 
-    if (linia+linOff<wpisane.size()-1){
-        if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
+static void endIfNecessary(){ if(kolumna+kolOff2>wpisane.get(linia+linOff).length()) enteredEnd(); }
+
+static void enteredEnd(){
+	kolumna = wpisane.get(linia+linOff).length();
+	kolOff = 0; 
+	kolOff2 = 0;
+}
+
+static void enteredHome(){ kolumna = 0; kolOff = 0; kolOff2 = 0;}
+
+static void wPrawo(JLabel[] labels){
+    if (kolumna+kolOff2>=wpisane.get(linia+linOff).length()){
+        if (wDolStub(labels)) enteredHome();}
+    else kolumna+=1;}       	
+
+static boolean wDolStub(JLabel[] labels){
+	boolean isNotLast = (linia+linOff<wpisane.size()-1);
+	if(isNotLast) {
+		if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
         if (linia<linMax-1) linia+=1;
         else {
             linia=linMax-linSkok;
             linOff+=linSkok;
-            refreshRows(labels);}      
-        if (kolumna+kolOff2>wpisane.get(linia+linOff).length()) {
-            kolumna=wpisane.get(linia+linOff).length();
-            kolOff=0;
-            kolOff2=0;}}}         	
+            refreshRows(labels);}    
+	}
+	return isNotLast;
+}
+
+static void wDol(JLabel[] labels){ 
+    if (wDolStub(labels)) endIfNecessary();}  
 
 static boolean saveFile(String nazwaPliku){
 	try {
@@ -318,11 +322,7 @@ static boolean saveFile(String nazwaPliku){
 
 static String napiszAkt(String tekst){   
 	int dlugosc = tekst.length(); 
-	if(dlugosc==0) return " ";
-	if(kolOff==0){
-		if(dlugosc<=kolMax) return tekst;
-		else return tekst.substring(0,kolMax-1)+"$"; 
-		}
+	if(kolOff==0) return napiszZero(tekst);
 	else {
 		if(dlugosc<kolMax+kolOff) return "$"+tekst.substring(kolOff,Math.min(kolOff+kolMax-1,dlugosc));
 		else return "$"+tekst.substring(kolOff,Math.min(kolOff+kolMax-2,dlugosc))+"$";		
@@ -368,7 +368,7 @@ static void enteredBackspace(JLabel[] labels){
 static void enteredDelete(JLabel[] labels){
 	edytowany = true;
 	if(kolumna+kolOff2==wpisane.get(linia+linOff).length()){
-		if (linia+linOff==wpisane.size() || wpisane.size()==1);
+		if (linia+linOff==wpisane.size()-1);
 		else {
 			wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
 			wpisane.remove(linia+linOff+1);
