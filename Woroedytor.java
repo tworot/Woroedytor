@@ -86,20 +86,42 @@ public class Woroedytor {
 			return "BLAD WCZYTYWANIA PLIKU";}
 	}
 
-	static String nameFinder(String[] args){
-		if(args.length > 0) return args[0];
+
+	static String[] nameFinder(String[] args) {
+		
+		String[] foundName = new String[4]; 
+		//0-nazwa pliku przekazana; 1-nazwa pliku samego; 2-nazwa bez rozszerzenia; 3-sciezka folderu zawierajacego
+
+		if(args.length > 0) {
+			foundName[0]=args[0]; 
+			File plik = new File(args[0]);
+			foundName[1]=plik.getName();
+			foundName[2]=foundName[1].replaceFirst("[.][^.]+$", "");//usuwa ostatnia kropke wszystko po niej (rozszerzenie)
+			try {
+				foundName[3]=plik.getCanonicalPath().replaceFirst("[\\\\][^\\\\]+$", ""); //usuwa wszystko po ostatnim backslashu w sciezce
+			 }
+			catch (IOException e){
+				System.out.println("Krytyczne niepowodzenie! "+args[0]);
+				System.exit(1);
+			}
+		}
 		else {
-			String folderName = "."; // Give your folderName
-			File[] listFiles = new File(folderName).listFiles();
+			File folder = new File(".");
+			try{ foundName[3]=folder.getCanonicalPath();}
+			catch (IOException e) {System.out.println("Nie znaleziono folderu domyslnego! Niektore funkcje moga nie dzialac!");}
+
+			File[] listFiles = folder.listFiles();
 			boolean unikatowaNazwa = true;
 
 			for (int i = 0; i < listFiles.length && unikatowaNazwa; i++) {
 				if (listFiles[i].isFile()) {
 					String fileName = listFiles[i].getName();
 					if (fileName.equals(domNazwaPliku+domRozszerzenie)) unikatowaNazwa=false;	}}
-			if(unikatowaNazwa) return domNazwaPliku+domRozszerzenie;
+			if(unikatowaNazwa) {
+				foundName[0]=foundName[1]=domNazwaPliku+domRozszerzenie;
+				foundName[2]=domNazwaPliku;}
+			else{
 				int j=0;
-
 				do{
 					unikatowaNazwa = true;
 					j++;
@@ -108,7 +130,10 @@ public class Woroedytor {
 								String fileName = listFiles[i].getName();
 								if (fileName.equals(domNazwaPliku+"("+j+")"+domRozszerzenie)) unikatowaNazwa=false;
 					}}}while(!unikatowaNazwa);
-				return domNazwaPliku+"("+j+")"+domRozszerzenie;}}
+				foundName[2]=domNazwaPliku+"("+j+")";
+				foundName[0]=foundName[1]=foundName[2]+domRozszerzenie;	}}
+		if(czyDebug) System.out.println(Arrays.toString(foundName));
+		return foundName;}
 
 
 public static void main(String[] args) {
@@ -120,7 +145,9 @@ public static void main(String[] args) {
 		// System.out.println("defaultCharacterEncoding by property: "+ System.getProperty("file.encoding"));
 		// System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
 		
-	String nazwaPliku = new String(nameFinder(args));
+//	String[] nazwaPliku = new String[4];
+//	nazwaPliku = nameFinder(args);
+	final String[] nazwaPliku = nameFinder(args);
   	JLabel labels[] = new JLabel[linMax];
 	JFrame mainWindow = new JFrame("Woroedytor");
 	JLayeredPane lp = new JLayeredPane();
@@ -151,9 +178,9 @@ public static void main(String[] args) {
 	status.setForeground(textColor);
 	textPane.add(status);
 
-	status.setText("Ln 1, Kol 1 - "+openFile(nazwaPliku,args));
+	status.setText("Ln 1, Kol 1 - "+openFile(nazwaPliku[0],args));
 	refreshRows(labels);
-	mainWindow.setTitle(nazwaPliku + " - Woroedytor");
+	mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
 
 
 	JLabel cursorLetter = new JLabel(" ");
@@ -194,14 +221,14 @@ public static void main(String[] args) {
             char c = e.getKeyChar();  
             if(czyDebug) System.out.println("Numer znaku: "+(int) c+"\nKod klawisza: "+keyCode);
 			if (c == 19) { //Ctrl + S
-				if(saveFile(nazwaPliku)){
-                    mainWindow.setTitle(nazwaPliku + " - Woroedytor");
+				if(saveFile(nazwaPliku[0])){
+                    mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
                     edytowany = false;
 				    status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISANE");}}
             else if (c == 27) enteredEscape(status); //Escape
 			else if (menuWyjscia){
             if (c == 84 || c == 116) {
-                saveFile(nazwaPliku);
+                saveFile(nazwaPliku[0]);
                 System.exit(0);}
             else if (c == 78 || c == 110) System.exit(0);}
             else{
@@ -213,8 +240,8 @@ public static void main(String[] args) {
 		if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels);
 		if (keyCode == 36) enteredHome();
 		if (keyCode == 35) enteredEnd();
-		if (keyCode == 33) {int i; System.out.println(linia+linMax); for (i=(linia+linMax);i>0;i--) wGore(labels); System.out.println(i); kolumna = 0; kolOff = 0; kolOff2 = 0;}
-
+		if (keyCode == 33) {for (int i=(linia+linMax);i>0;i--) wGoreStub(labels); enteredHome();}
+		if (keyCode == 34) enteredPgDn(labels);
 		}
 		   
 
@@ -233,7 +260,7 @@ public static void main(String[] args) {
         if(!(wpisane.get(wpisane.size()-1).equals(""))) wpisane.add(""); //tworzy ostatnią pustą linię
 				
 		naprawKolumny();	
-        if(edytowany) mainWindow.setTitle("* "+nazwaPliku + " - Woroedytor");
+        if(edytowany) mainWindow.setTitle("* "+nazwaPliku[1] + " - Woroedytor");
         labels[linia].setText(napiszAkt(wpisane.get(linia+linOff)));
         //cursor.setKursor(linia,kolumna);
 		cursor.revalidate();
@@ -307,6 +334,15 @@ static boolean wDolStub(JLabel[] labels){
             refreshRows(labels);}    
 	}
 	return isNotLast;
+}
+
+static void enteredPgDn(JLabel[] labels){
+	enteredHome();
+	if(linOff+linMax < wpisane.size()){
+		linia = 0;
+		linOff+=linMax;
+		refreshRows(labels);}
+	else for(int i=linia;i<linMax;i++) wDolStub(labels);
 }
 
 static void wDol(JLabel[] labels){ 
