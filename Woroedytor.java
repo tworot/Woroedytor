@@ -62,6 +62,23 @@ public class Woroedytor {
     private static boolean edytowany = false;
 
 
+
+	static void compileAndRun(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && javac "+nazwaPliku[1]+" && java "+nazwaPliku[2]); //+" && pause"
+		//ProcessBuilder("cmd.exe", "/c", "cd \"C:\\Program Files\\Microsoft SQL Server\" && dir");
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while (true) {
+            line = r.readLine();
+            if (line == null) { break; }
+            System.out.println(line);}}
+	catch(IOException e) {System.out.println("Kompilacja zakonczona niepowodzeniem!"); }
+	}
+
+
 	
 	static String openFile(String nazwaPliku, String[] args) {
 		if(args.length == 0) {
@@ -137,16 +154,7 @@ public class Woroedytor {
 
 
 public static void main(String[] args) {
-		// String defaultCharacterEncoding = System.getProperty("file.encoding");
-		// System.out.println("defaultCharacterEncoding by property: " + defaultCharacterEncoding);
-		// //System.out.println("defaultCharacterEncoding by code: " + getDefaultCharEncoding());
-		// System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
-		// System.setProperty("file.encoding", "UTF-8");
-		// System.out.println("defaultCharacterEncoding by property: "+ System.getProperty("file.encoding"));
-		// System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
-		
-//	String[] nazwaPliku = new String[4];
-//	nazwaPliku = nameFinder(args);
+
 	final String[] nazwaPliku = nameFinder(args);
   	JLabel labels[] = new JLabel[linMax];
 	JFrame mainWindow = new JFrame("Woroedytor");
@@ -249,6 +257,7 @@ public static void main(String[] args) {
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
 		else if (c == 8) enteredBackspace(labels); //Backspace / Ctrl+H
+		else if (c == 14) compileAndRun(nazwaPliku);
         else if (c>31) { 
             wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+ c +wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));   
             kolumna++;
