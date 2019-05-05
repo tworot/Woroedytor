@@ -63,10 +63,9 @@ public class Woroedytor {
 
 
 
-	static void compileAndRun(String[] nazwaPliku){
+static String buildAndRun(String[] nazwaPliku){
 	try{	
 		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && javac "+nazwaPliku[1]+" && java "+nazwaPliku[2]); //+" && pause"
-		//ProcessBuilder("cmd.exe", "/c", "cd \"C:\\Program Files\\Microsoft SQL Server\" && dir");
         builder.redirectErrorStream(true);
         Process p = builder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -74,9 +73,37 @@ public class Woroedytor {
         while (true) {
             line = r.readLine();
             if (line == null) { break; }
-            System.out.println(line);}}
-	catch(IOException e) {System.out.println("Kompilacja zakonczona niepowodzeniem!"); }
-	}
+			System.out.println(line);}
+		return "ZBUDOWANO I URUCHOMIONO";}
+	catch(IOException e) {return "NIEPOWODZENIE KOMPILACJI"; }}
+
+static String justBuild(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && javac "+nazwaPliku[1]); 
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) { break; }
+			System.out.println(line);}
+		return "ZBUDOWANO";}
+	catch(IOException e) {return "NIEPOWODZENIE KOMPILACJI"; }}
+
+static String justRun(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && java "+nazwaPliku[2]); 
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) { break; }
+			System.out.println(line);}
+			return "URUCHOMIONO";}
+	catch(IOException e) {return "NIEPOWODZENIE URUCHOMIENIA";}}
 
 
 	
@@ -227,7 +254,7 @@ public static void main(String[] args) {
         public void keyPressed(KeyEvent e) {
         	int keyCode = e.getKeyCode();
             char c = e.getKeyChar();  
-            if(czyDebug) System.out.println("Numer znaku: "+(int) c+"\nKod klawisza: "+keyCode);
+			if(czyDebug) System.out.println("Numer znaku: "+(int) c+"\nKod klawisza: "+keyCode);
 			if (c == 19) { //Ctrl + S
 				if(saveFile(nazwaPliku[0])){
                     mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
@@ -238,7 +265,10 @@ public static void main(String[] args) {
             if (c == 84 || c == 116) {
                 saveFile(nazwaPliku[0]);
                 System.exit(0);}
-            else if (c == 78 || c == 110) System.exit(0);}
+            else if (c == 78 || c == 110) System.exit(0);}			
+			else if (c == 14) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+buildAndRun(nazwaPliku));
+			else if (c == 2) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+justBuild(nazwaPliku));
+			else if (c == 13) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+justRun(nazwaPliku));
             else{
 
 		if (c== 0xffff){		
@@ -257,7 +287,6 @@ public static void main(String[] args) {
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
 		else if (c == 8) enteredBackspace(labels); //Backspace / Ctrl+H
-		else if (c == 14) compileAndRun(nazwaPliku);
         else if (c>31) { 
             wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+ c +wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));   
             kolumna++;
