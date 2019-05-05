@@ -203,7 +203,11 @@ public static void main(String[] args) {
         if (keyCode == KeyEvent.VK_DOWN) wDol(labels);        	
         if (keyCode == KeyEvent.VK_UP) wGore(labels);        	
         if (keyCode == KeyEvent.VK_LEFT) wLewo(labels);        	
-        if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels); }       	
+		if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels);
+		if (keyCode == 36) {kolumna = 0; kolOff = 0; kolOff2 = 0;}
+		if (keyCode == 35) {kolumna = wpisane.get(linia+linOff).length(); kolOff = 0; kolOff2 = 0;}
+		
+	 }       	
         
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
