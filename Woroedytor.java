@@ -282,8 +282,6 @@ public static void main(String[] args) {
 		if (keyCode == 34) enteredPgDn(labels);
 		}
 		   
-
-        
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
 		else if (c == 8) enteredBackspace(labels); //Backspace / Ctrl+H
