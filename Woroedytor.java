@@ -256,6 +256,40 @@ public static void main(String[] args) {
 	lp.add(cursor,Integer.valueOf(2));
 	lp.setVisible(true);
 
+	mainWindow.addMouseListener(new MouseListener() {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			int x=e.getX()-7;
+			int y=e.getY()-30;
+			int kurX=x/kurSzer;
+			int kurY=y/kurWys;
+			System.out.println("x: "+x+" ,y: "+y+" ,kurX: "+kurX+" ,kurY: "+kurY);
+			// if (kurX<linMax && kurY<kolMax) {
+			// 	linia = Math.min(kurY,wpisane.size()-linOff);
+			// 	kolumna = Math.min(kurX,wpisane.get(linia+linOff).length()-kolOff);
+			// 	}
+			labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
+			linia=Math.min(kurY,wpisane.size()-linOff-1);
+			kolumna=Math.min(kurX,wpisane.get(linia+linOff).length()-kolOff);
+			naprawKolumny();	
+			labels[linia].setText(napiszAkt(wpisane.get(linia+linOff)));
+			System.out.println(linia+" "+kolumna);
+			//cursor.setKursor(linia,kolumna);
+			cursor.revalidate();
+			mainWindow.revalidate();
+			mainWindow.repaint();}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		@Override
+		public void mousePressed(MouseEvent e) {}		
+
+	});
+
 	mainWindow.addKeyListener(
       new KeyAdapter() {
         public void keyPressed(KeyEvent e) {
