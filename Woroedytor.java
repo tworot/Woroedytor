@@ -117,7 +117,7 @@ static String justRun(String[] nazwaPliku){
 			if (czyDebug) System.out.println("Znaleziono plik");
 			while ((line = reader.readLine()) != null) wpisane.add(line);
 			reader.close();
-			return "WCZYTANE";}
+			return "WCZYTANO PLIK";}
 		catch (FileNotFoundException e){
 			if (czyDebug) System.out.println("Nie znaleziono podanego pliku");
 			wpisane.add("");
@@ -190,7 +190,7 @@ public static void main(String[] args) {
 	//ramka.setContentPane(tekst);
 	//ramka.getContentPane().setBackground(backgroundColor);
 	mainWindow.setResizable(false);
-    mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	mainWindow.add(lp);
 
 	JPanel textPane = new JPanel();
@@ -213,6 +213,12 @@ public static void main(String[] args) {
 	status.setForeground(textColor);
 	textPane.add(status);
 
+	mainWindow.addWindowListener(new WindowAdapter() {
+		@Override
+		public void windowClosing(java.awt.event.WindowEvent windowEvent) {	
+			menuWyjscia = false;
+			enteredEscape(status);}});
+
 	status.setText("Ln 1, Kol 1 - "+openFile(nazwaPliku[0],args));
 	refreshRows(labels);
 	mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
@@ -223,6 +229,7 @@ public static void main(String[] args) {
 	cursorLetter.setForeground(Color.BLACK);
 	cursorLetter.setLocation(0,0);
 	cursorLetter.setSize(cursorLetter.getPreferredSize());
+
 
 	@SuppressWarnings("serial")   
 	JPanel cursor = new JPanel(){
@@ -259,7 +266,7 @@ public static void main(String[] args) {
 				if(saveFile(nazwaPliku[0])){
                     mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
                     edytowany = false;
-				    status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISANE");}}
+				    status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISANO");}}
             else if (c == 27) enteredEscape(status); //Escape
 			else if (menuWyjscia){
             if (c == 84 || c == 116) {
@@ -418,9 +425,9 @@ static String napiszZero(String tekst){
 static void enteredEscape(JLabel status){
     if(!edytowany) System.exit(0);
     menuWyjscia ^= true;
-    if (menuWyjscia) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISAC PRZED WYJSCIEM? (T-Tak/N-Nie/Esc-Anuluj)");
+    if (menuWyjscia) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISAĆ PRZED WYJŚCIEM? (T-Tak/N-Nie/Esc-Anuluj)");
     else status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ANULOWANO");
-    System.out.println(menuWyjscia);
+    if(czyDebug) System.out.println(menuWyjscia);
 }
 
 static void removeCharStub(JLabel[] labels, boolean lastCharInLine){
