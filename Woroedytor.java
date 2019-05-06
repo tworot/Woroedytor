@@ -62,6 +62,50 @@ public class Woroedytor {
     private static boolean edytowany = false;
 
 
+
+static String buildAndRun(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && javac "+nazwaPliku[1]+" && java "+nazwaPliku[2]); //+" && pause"
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while (true) {
+            line = r.readLine();
+            if (line == null) { break; }
+			System.out.println(line);}
+		return "ZBUDOWANO I URUCHOMIONO";}
+	catch(IOException e) {return "NIEPOWODZENIE KOMPILACJI"; }}
+
+static String justBuild(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && javac "+nazwaPliku[1]); 
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) { break; }
+			System.out.println(line);}
+		return "ZBUDOWANO";}
+	catch(IOException e) {return "NIEPOWODZENIE KOMPILACJI"; }}
+
+static String justRun(String[] nazwaPliku){
+	try{	
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "cd /d "+nazwaPliku[3]+" && java "+nazwaPliku[2]); 
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) { break; }
+			System.out.println(line);}
+			return "URUCHOMIONO";}
+	catch(IOException e) {return "NIEPOWODZENIE URUCHOMIENIA";}}
+
+
 	
 	static String openFile(String nazwaPliku, String[] args) {
 		if(args.length == 0) {
@@ -86,20 +130,42 @@ public class Woroedytor {
 			return "BLAD WCZYTYWANIA PLIKU";}
 	}
 
-	static String nameFinder(String[] args){
-		if(args.length > 0) return args[0];
+
+	static String[] nameFinder(String[] args) {
+		
+		String[] foundName = new String[4]; 
+		//0-nazwa pliku przekazana; 1-nazwa pliku samego; 2-nazwa bez rozszerzenia; 3-sciezka folderu zawierajacego
+
+		if(args.length > 0) {
+			foundName[0]=args[0]; 
+			File plik = new File(args[0]);
+			foundName[1]=plik.getName();
+			foundName[2]=foundName[1].replaceFirst("[.][^.]+$", "");//usuwa ostatnia kropke wszystko po niej (rozszerzenie)
+			try {
+				foundName[3]=plik.getCanonicalPath().replaceFirst("[\\\\][^\\\\]+$", ""); //usuwa wszystko po ostatnim backslashu w sciezce
+			 }
+			catch (IOException e){
+				System.out.println("Krytyczne niepowodzenie! "+args[0]);
+				System.exit(1);
+			}
+		}
 		else {
-			String folderName = "."; // Give your folderName
-			File[] listFiles = new File(folderName).listFiles();
+			File folder = new File(".");
+			try{ foundName[3]=folder.getCanonicalPath();}
+			catch (IOException e) {System.out.println("Nie znaleziono folderu domyslnego! Niektore funkcje moga nie dzialac!");}
+
+			File[] listFiles = folder.listFiles();
 			boolean unikatowaNazwa = true;
 
 			for (int i = 0; i < listFiles.length && unikatowaNazwa; i++) {
 				if (listFiles[i].isFile()) {
 					String fileName = listFiles[i].getName();
 					if (fileName.equals(domNazwaPliku+domRozszerzenie)) unikatowaNazwa=false;	}}
-			if(unikatowaNazwa) return domNazwaPliku+domRozszerzenie;
+			if(unikatowaNazwa) {
+				foundName[0]=foundName[1]=domNazwaPliku+domRozszerzenie;
+				foundName[2]=domNazwaPliku;}
+			else{
 				int j=0;
-
 				do{
 					unikatowaNazwa = true;
 					j++;
@@ -108,19 +174,15 @@ public class Woroedytor {
 								String fileName = listFiles[i].getName();
 								if (fileName.equals(domNazwaPliku+"("+j+")"+domRozszerzenie)) unikatowaNazwa=false;
 					}}}while(!unikatowaNazwa);
-				return domNazwaPliku+"("+j+")"+domRozszerzenie;}}
+				foundName[2]=domNazwaPliku+"("+j+")";
+				foundName[0]=foundName[1]=foundName[2]+domRozszerzenie;	}}
+		if(czyDebug) System.out.println(Arrays.toString(foundName));
+		return foundName;}
 
 
 public static void main(String[] args) {
-		// String defaultCharacterEncoding = System.getProperty("file.encoding");
-		// System.out.println("defaultCharacterEncoding by property: " + defaultCharacterEncoding);
-		// //System.out.println("defaultCharacterEncoding by code: " + getDefaultCharEncoding());
-		// System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
-		// System.setProperty("file.encoding", "UTF-8");
-		// System.out.println("defaultCharacterEncoding by property: "+ System.getProperty("file.encoding"));
-		// System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
-		
-	String nazwaPliku = new String(nameFinder(args));
+
+	final String[] nazwaPliku = nameFinder(args);
   	JLabel labels[] = new JLabel[linMax];
 	JFrame mainWindow = new JFrame("Woroedytor");
 	JLayeredPane lp = new JLayeredPane();
@@ -151,9 +213,9 @@ public static void main(String[] args) {
 	status.setForeground(textColor);
 	textPane.add(status);
 
-	status.setText("Ln 1, Kol 1 - "+openFile(nazwaPliku,args));
+	status.setText("Ln 1, Kol 1 - "+openFile(nazwaPliku[0],args));
 	refreshRows(labels);
-	mainWindow.setTitle(nazwaPliku + " - Woroedytor");
+	mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
 
 
 	JLabel cursorLetter = new JLabel(" ");
@@ -192,30 +254,38 @@ public static void main(String[] args) {
         public void keyPressed(KeyEvent e) {
         	int keyCode = e.getKeyCode();
             char c = e.getKeyChar();  
-            if(czyDebug) System.out.println("Numer znaku: "+(int) c+"\nKod klawisza: "+keyCode);
+			if(czyDebug) System.out.println("Numer znaku: "+(int) c+"\nKod klawisza: "+keyCode);
 			if (c == 19) { //Ctrl + S
-				if(saveFile(nazwaPliku)){
-                    mainWindow.setTitle(nazwaPliku + " - Woroedytor");
+				if(saveFile(nazwaPliku[0])){
+                    mainWindow.setTitle(nazwaPliku[1] + " - Woroedytor");
                     edytowany = false;
 				    status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - ZAPISANE");}}
             else if (c == 27) enteredEscape(status); //Escape
 			else if (menuWyjscia){
             if (c == 84 || c == 116) {
-                saveFile(nazwaPliku);
+                saveFile(nazwaPliku[0]);
                 System.exit(0);}
-            else if (c == 78 || c == 110) System.exit(0);}
+            else if (c == 78 || c == 110) System.exit(0);}			
+			else if (c == 14) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+buildAndRun(nazwaPliku));
+			else if (c == 2) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+justBuild(nazwaPliku));
+			else if (c == 13) status.setText("Ln "+(linia+linOff+1)+", Kol "+(kolumna+kolOff2+1)+" - "+justRun(nazwaPliku));
             else{
 
 		if (c== 0xffff){		
         if (keyCode == KeyEvent.VK_DOWN) wDol(labels);        	
         if (keyCode == KeyEvent.VK_UP) wGore(labels);        	
         if (keyCode == KeyEvent.VK_LEFT) wLewo(labels);        	
-        if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels); }       	
-        
+		if (keyCode == KeyEvent.VK_RIGHT) wPrawo(labels);
+		if (keyCode == 36) enteredHome();
+		if (keyCode == 35) enteredEnd();
+		if (keyCode == 33) {for (int i=(linia+linMax);i>0;i--) wGoreStub(labels); enteredHome();}
+		if (keyCode == 34) enteredPgDn(labels);
+		}
+		   
         else if (c == 10) enteredEnter(labels); //Enter / Ctrl+J            
         else if (c == 127) enteredDelete(labels); //Delete
 		else if (c == 8) enteredBackspace(labels); //Backspace / Ctrl+H
-        else if (c != 0xffff && c>31) { 
+        else if (c>31) { 
             wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+ c +wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));   
             kolumna++;
             edytowany = true; }
@@ -226,7 +296,7 @@ public static void main(String[] args) {
         if(!(wpisane.get(wpisane.size()-1).equals(""))) wpisane.add(""); //tworzy ostatnią pustą linię
 				
 		naprawKolumny();	
-        if(edytowany) mainWindow.setTitle("* "+nazwaPliku + " - Woroedytor");
+        if(edytowany) mainWindow.setTitle("* "+nazwaPliku[1] + " - Woroedytor");
         labels[linia].setText(napiszAkt(wpisane.get(linia+linOff)));
         //cursor.setKursor(linia,kolumna);
 		cursor.revalidate();
@@ -252,57 +322,67 @@ static void naprawKolumny(){
 		if(kolOff>0) kolOff2=kolOff-1;
 		else kolOff2=0;	}}
 
-static void wPrawo(JLabel[] labels){
-    if (kolumna+kolOff2>=wpisane.get(linia+linOff).length()){
-        if (linia+linOff<wpisane.size()-1){
-            if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
-            if (linia<linMax-1) linia+=1;
-            else {
-                linia=linMax-linSkok;
-                linOff+=linSkok;
-                refreshRows(labels);}
-            kolumna=0;
-            kolOff=0;
-            kolOff2=0;}}
-    else kolumna+=1;}	
+	
 
 static void wLewo(JLabel[] labels){
-    if (kolumna==0){
-        if (linia+linOff>0) {
-            if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
-            if(linia>0) linia-=1;
-            else {
-                linia=linSkok-1;
-                linOff-=linSkok;
-                refreshRows(labels);}
-            kolumna=wpisane.get(linia+linOff).length();}}
+    if (kolumna==0) {
+		if (wGoreStub(labels)) enteredEnd();}
     else kolumna-=1;}
 
 static void wGore(JLabel[] labels){
-    if (linia+linOff>0) {
-        if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
+    if (wGoreStub(labels)) endIfNecessary();}
+
+static boolean wGoreStub(JLabel[] labels){
+	boolean notFirstLine = (linia+linOff>0);
+	if (notFirstLine) {
+		if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
         if(linia>0) linia-=1;
         else {
             linia=linSkok-1;
-            linOff-=linSkok;
-            refreshRows(labels);}
-    	if (kolumna+kolOff2>wpisane.get(linia+linOff).length()) {
-			kolumna=wpisane.get(linia+linOff).length();
-			kolOff=0;
-			kolOff2=0;}}}
+            linOff-=Math.min(linSkok,linOff);
+			refreshRows(labels);}}
+	return notFirstLine;
+}
 
-static void wDol(JLabel[] labels){ 
-    if (linia+linOff<wpisane.size()-1){
-        if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
+static void endIfNecessary(){ if(kolumna+kolOff2>wpisane.get(linia+linOff).length()) enteredEnd(); }
+
+static void enteredEnd(){
+	kolumna = wpisane.get(linia+linOff).length();
+	kolOff = 0; 
+	kolOff2 = 0;
+}
+
+static void enteredHome(){ kolumna = 0; kolOff = 0; kolOff2 = 0;}
+
+static void wPrawo(JLabel[] labels){
+    if (kolumna+kolOff2>=wpisane.get(linia+linOff).length()){
+        if (wDolStub(labels)) enteredHome();}
+    else kolumna+=1;}       	
+
+static boolean wDolStub(JLabel[] labels){
+	boolean isNotLast = (linia+linOff<wpisane.size()-1);
+	if(isNotLast) {
+		if(kolOff>0) labels[linia].setText(napiszZero(wpisane.get(linia+linOff)));
         if (linia<linMax-1) linia+=1;
         else {
             linia=linMax-linSkok;
             linOff+=linSkok;
-            refreshRows(labels);}      
-        if (kolumna+kolOff2>wpisane.get(linia+linOff).length()) {
-            kolumna=wpisane.get(linia+linOff).length();
-            kolOff=0;
-            kolOff2=0;}}}         	
+            refreshRows(labels);}    
+	}
+	return isNotLast;
+}
+
+static void enteredPgDn(JLabel[] labels){
+	enteredHome();
+	if(linOff+linMax < wpisane.size()){
+		linia = 0;
+		linOff+=linMax;
+		refreshRows(labels);}
+	else for(int i=linia;i<linMax;i++) wDolStub(labels);
+}
+
+static void wDol(JLabel[] labels){ 
+    if (wDolStub(labels)) endIfNecessary();}  
 
 static boolean saveFile(String nazwaPliku){
 	try {
@@ -321,11 +401,7 @@ static boolean saveFile(String nazwaPliku){
 
 static String napiszAkt(String tekst){   
 	int dlugosc = tekst.length(); 
-	if(dlugosc==0) return " ";
-	if(kolOff==0){
-		if(dlugosc<=kolMax) return tekst;
-		else return tekst.substring(0,kolMax-1)+"$"; 
-		}
+	if(kolOff==0) return napiszZero(tekst);
 	else {
 		if(dlugosc<kolMax+kolOff) return "$"+tekst.substring(kolOff,Math.min(kolOff+kolMax-1,dlugosc));
 		else return "$"+tekst.substring(kolOff,Math.min(kolOff+kolMax-2,dlugosc))+"$";		
@@ -347,37 +423,25 @@ static void enteredEscape(JLabel status){
     System.out.println(menuWyjscia);
 }
 
-static void enteredBackspace(JLabel[] labels){
-    edytowany = true;
-  	if(kolumna+kolOff2==0){
-	if (linia==0 && linOff==0);
-	else {
-		if(linia==0 && linOff>=linSkok){
-    		linOff-=linSkok;
-        	linia=linSkok-1;}
-        else linia-=1;
-        kolumna=wpisane.get(linia+linOff).length();
-        wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
-        wpisane.remove(linia+linOff+1);
-        refreshRows(labels);}}
-    else if(kolumna+kolOff2==wpisane.get(linia+linOff).length()) {
-        wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,wpisane.get(linia+linOff).length()-1));
-        kolumna-=1;}	
-    else {
-        wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2-1)+wpisane.get(linia+linOff).substring(kolumna+kolOff2,wpisane.get(linia+linOff).length()));
-        kolumna-=1;}}
-
+static void removeCharStub(JLabel[] labels, boolean lastCharInLine){
+	edytowany = true;
+	if(lastCharInLine){
+		wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
+		wpisane.remove(linia+linOff+1);
+		refreshRows(labels);}
+	else wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+wpisane.get(linia+linOff).substring(kolumna+kolOff2+1,wpisane.get(linia+linOff).length()));}
 
 static void enteredDelete(JLabel[] labels){
-	edytowany = true;
-	if(kolumna+kolOff2==wpisane.get(linia+linOff).length()){
-		if (linia+linOff==wpisane.size() || wpisane.size()==1);
-		else {
-			wpisane.set(linia+linOff,wpisane.get(linia+linOff)+wpisane.get(linia+linOff+1));
-			wpisane.remove(linia+linOff+1);
-			refreshRows(labels);}}
-	else {
-	wpisane.set(linia+linOff, wpisane.get(linia+linOff).substring(0,kolumna+kolOff2)+wpisane.get(linia+linOff).substring(kolumna+kolOff2+1,wpisane.get(linia+linOff).length()));}}
+	if (kolumna+kolOff2==wpisane.get(linia+linOff).length()) {
+		if (linia+linOff==wpisane.size()-1);
+		else removeCharStub(labels, true);}
+	else removeCharStub(labels, false);}
+
+static void enteredBackspace(JLabel[] labels){
+	if(kolumna+kolOff2==0){
+		if (linia+linOff==0);
+		else {wLewo(labels); removeCharStub(labels, true);}}
+	else {wLewo(labels); removeCharStub(labels, false);}}
 
 static void enteredEnter(JLabel[] labels){
     edytowany = true;
