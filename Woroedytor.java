@@ -263,7 +263,7 @@ public static void main(String[] args) {
 			int y=e.getY()-30;
 			int kurX=x/kurSzer;
 			int kurY=y/kurWys;
-			System.out.println("x: "+x+" ,y: "+y+" ,kurX: "+kurX+" ,kurY: "+kurY);
+			if(czyDebug) System.out.println("x: "+x+" ,y: "+y+" ,kurX: "+kurX+" ,kurY: "+kurY);
 			// if (kurX<linMax && kurY<kolMax) {
 			// 	linia = Math.min(kurY,wpisane.size()-linOff);
 			// 	kolumna = Math.min(kurX,wpisane.get(linia+linOff).length()-kolOff);
@@ -273,7 +273,7 @@ public static void main(String[] args) {
 			kolumna=Math.min(kurX,wpisane.get(linia+linOff).length()-kolOff);
 			naprawKolumny();	
 			labels[linia].setText(napiszAkt(wpisane.get(linia+linOff)));
-			System.out.println(linia+" "+kolumna);
+			if(czyDebug) System.out.println(linia+" "+kolumna);
 			//cursor.setKursor(linia,kolumna);
 			cursor.revalidate();
 			mainWindow.revalidate();
